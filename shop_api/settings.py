@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'shop_logic',
+    'shop_cart',
+    'shop_accounts',
 ]
 
 MIDDLEWARE = [
@@ -80,7 +82,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'shop_db',
         'USER': 'cpu',
-        'PASSWORD':'1',
+        'PASSWORD': '1',
         'HOST': 'localhost',
         'PORT': 5432,
     }
