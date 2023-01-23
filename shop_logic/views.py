@@ -3,6 +3,7 @@ import django_filters
 from rest_framework import filters
 from .models import *
 from .serializers import *
+from .permissions import IsOwnerOrReadOnly, IsStaffOrTargetUser, permissions
 
 class CategoryViewSet(ModelViewSet):
     queryset = Category.objects.all()
@@ -20,3 +21,19 @@ class ArticleViewSet(ModelViewSet):
     filterset_fields =['product']
     search_fields = ['category__slug', 'published_at']
     ordering_fields = ['published_at', 'title']
+
+class OrdersViewSet(ModelViewSet):
+    queryset = Orders.objects.all().order_by('-id')
+    serializer_class = OrdersSerializer
+    permission_classes = (
+        permissions.IsAuthenticatedOrReadOnly,
+        IsOwnerOrReadOnly
+    )
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = self.queryset.filter(owner=user)
+        return queryset
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)

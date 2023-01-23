@@ -1,5 +1,8 @@
 from django.db import models
 from slugify import slugify
+from django.conf import settings
+from django.contrib.postgres.fields import ArrayField
+from decimal import Decimal
 
 class Category(models.Model):
     title = models.CharField(max_length=200, unique=True, verbose_name='Название категории')
@@ -64,4 +67,17 @@ class Article(models.Model):
         if not self.slug:
             self.slug = slugify(self.title)
         super().save()
+
+class Orders(models.Model):
+    date = models.DateTimeField(auto_now_add=True)
+    product = ArrayField(models.CharField(max_length=50), default=[])
+    quantities = ArrayField(models.PositiveIntegerField(), default=[])
+    total_price = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
+    delivery_method = models.CharField(max_length=30, default='')
+    payment_method = models.CharField(max_length=30, default='')
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='orders', on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = 'Заказ'
+        verbose_name_plural = 'Заказы'
 

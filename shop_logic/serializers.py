@@ -14,5 +14,11 @@ class ProductSerializer(serializers.ModelSerializer):
 class ArticleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Article
-        fields = Article
         fields = ('title',)
+
+class OrdersSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source='owner.username')
+
+    class Meta:
+        model = Orders
+        fields = '__all__'
