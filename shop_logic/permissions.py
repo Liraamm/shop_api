@@ -8,17 +8,14 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         if request.method in permissions.SAFE_METHODS or request.method == 'PUT':
             return True
-
-        # Write permissions are only allowed to the owner of the snippet.
         return obj.owner == request.user
 
 
-class IsStaffOrTargetUser(permissions.BasePermission):
-    def has_permission(self, request, view):
-        # allow user to list all users if logged in user is staff
-        return view.action == 'retrieve' or request.user.is_staff
-
+class IsAuthorPermission(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        # allow logged in user to view own details,
-        # allows staff to view all records.
-        return obj == request.user or request.user.is_staff
+        return request.user.is_authenticated and request.user == obj.author
+
+
+class IsAdminAuthPermission(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and (request.user.is_active or request.user.is_staff)

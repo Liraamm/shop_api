@@ -70,9 +70,9 @@ class Article(models.Model):
 
 class Orders(models.Model):
     date = models.DateTimeField(auto_now_add=True)
-    product = ArrayField(models.CharField(max_length=50), default=[])
-    quantities = ArrayField(models.PositiveIntegerField(), default=[])
-    total_price = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='orders', verbose_name='Товар')
+    quantities = ArrayField(models.PositiveIntegerField(), default=list)
+    total_price = models.IntegerField()
     delivery_method = models.CharField(max_length=30, default='')
     payment_method = models.CharField(max_length=30, default='')
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='orders', on_delete=models.CASCADE)
@@ -80,4 +80,7 @@ class Orders(models.Model):
     class Meta:
         verbose_name = 'Заказ'
         verbose_name_plural = 'Заказы'
+
+    def __str__(self) -> str:
+        return self.product
 

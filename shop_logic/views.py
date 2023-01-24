@@ -3,7 +3,7 @@ import django_filters
 from rest_framework import filters
 from .models import *
 from .serializers import *
-from .permissions import IsOwnerOrReadOnly, IsStaffOrTargetUser, permissions
+from .permissions import IsOwnerOrReadOnly, permissions, IsAdminAuthPermission, IsAuthorPermission
 
 class CategoryViewSet(ModelViewSet):
     queryset = Category.objects.all()
@@ -12,6 +12,17 @@ class CategoryViewSet(ModelViewSet):
 class ProductViewSet(ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            self.permission_classes = [permissions.AllowAny]
+        if self.action == 'create':
+            self.permission_classes = [IsAdminAuthPermission]
+        elif self.action in ['update',
+        'partial_update', 'destroy']:
+            self.permission_classes = [IsAuthorPermission]
+            
+        return super().get_permissions()
 
 
 class ArticleViewSet(ModelViewSet):
