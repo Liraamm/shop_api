@@ -91,14 +91,14 @@ class CommentView(ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
 
-    # def get_permissions(self):
-    #     if self.action in ['list', 'retrieve']:
-    #         self.permission_classes = [permissions.AllowAny]
-    #     if self.action == 'create':
-    #         self.permission_classes = [permissions.IsAuthenticated]
-    #     elif self.action in ['update',
-    #     'partial_update', 'destroy']:
-    #         self.permission_classes = [IsAuthorPermission]
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            self.permission_classes = [permissions.AllowAny]
+        if self.action == 'create':
+            self.permission_classes = [permissions.IsAuthenticated]
+        elif self.action in ['update',
+        'partial_update', 'destroy']:
+            self.permission_classes = [IsAuthorPermission]
             
-    #     return super().get_permissions()
+        return super().get_permissions()
 
