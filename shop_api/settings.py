@@ -147,8 +147,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = ''
-EMAIL_HOST_PASSWORD = ''
+EMAIL_HOST_USER = 'ughmyname18@gmail.com'
+EMAIL_HOST_PASSWORD = 'dphyhihdaumidqnk'
 
 # LOGGING = {
 #     'version': 1,
@@ -160,7 +160,7 @@ EMAIL_HOST_PASSWORD = ''
 #             'filename': BASE_DIR / 'debug.log',
 #         },
 #     },
-#     'loggers': {
+#     'loggers': {``
 #         'django': {
 #             'handlers': ['file'],
 #             'level': 'INFO',

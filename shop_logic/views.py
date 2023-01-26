@@ -3,7 +3,9 @@ import django_filters
 from rest_framework import filters
 from .models import *
 from .serializers import *
-from .permissions import permissions, IsAuthorPermission
+from .permissions import permissions, IsAuthorPermission, IsAdminAuthPermission
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 class CategoryViewSet(ModelViewSet):
     queryset = Category.objects.all()
@@ -23,6 +25,45 @@ class ProductViewSet(ModelViewSet):
             self.permission_classes = [IsAuthorPermission]
             
         return super().get_permissions()
+
+    @action(['GET'], detail=True)
+    def comments(self, request, pk=None):
+        post = self.get_object()
+        comments = post.comments.all()
+        serializer = CommentSerializer(comments, many=True)
+        return Response(serializer.data)
+
+    @action(['POST', 'PATCH'], detail=True)
+    def rating(self, request, pk=None):
+        data = request.data.copy()
+        data['post'] = pk
+        serializer = RatingSerializer(data=data, context={'request': request})
+        rating = Rating.objects.filter(author=request.user, product=pk).first()
+        if serializer.is_valid(raise_exception=True):
+            if rating and request.method == 'post':
+                return Response('use PATCH method')
+            elif rating and request.method == 'PATCH':
+                serializer.create(serializer.validated_data)
+                return Response('Updated')
+            elif request.method == 'POST':
+                serializer.create(serializer.validated_data)
+                return Response('rating saved')
+
+    @action(['POST'], detail=True)
+    def like(self, request, pk=None):
+        product = self.get_object()
+        user = request.user
+        try:
+            like = Like.objects.get(product=product, author=user)
+            like.is_liked = not like.is_liked
+            like.save()
+            message = 'liked' if like.is_liked else 'disliked'
+            if not like.is_liked:
+                like.delete()
+        except Like.DoesNotExist:
+            Like.objects.create(product=product, author=user, is_liked=True)
+            message='liked'
+        return Response(message, status=200)
 
 
 class ArticleViewSet(ModelViewSet):
@@ -44,3 +85,20 @@ class OrdersViewSet(ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
+
+
+class CommentView(ModelViewSet):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+
+    # def get_permissions(self):
+    #     if self.action in ['list', 'retrieve']:
+    #         self.permission_classes = [permissions.AllowAny]
+    #     if self.action == 'create':
+    #         self.permission_classes = [permissions.IsAuthenticated]
+    #     elif self.action in ['update',
+    #     'partial_update', 'destroy']:
+    #         self.permission_classes = [IsAuthorPermission]
+            
+    #     return super().get_permissions()
+
