@@ -15,8 +15,20 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+
+
+schema_view = get_schema_view(
+    openapi.Info(
+        title='Shop Api',
+        description='shop project by Evelina and Amaliya',
+        default_version='v1'
+    ), public=True 
+)
 
 urlpatterns = [
+    path('docs/', schema_view.with_ui('swagger')),
     path('admin/', admin.site.urls),
     path('api/v1/', include('shop_logic.urls')),
     path('api/v1/', include('shop_accounts.urls'))

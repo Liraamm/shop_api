@@ -2,7 +2,10 @@ from django.db import models
 from slugify import slugify
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
-from decimal import Decimal
+from django.contrib.auth import get_user_model
+
+
+User = get_user_model()
 
 class Category(models.Model):
     title = models.CharField(max_length=200, unique=True, verbose_name='Название категории')
@@ -21,6 +24,7 @@ class Category(models.Model):
         verbose_name_plural = 'Категории'
 
 class Product(models.Model):
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='products', verbose_name='Автор')
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products', verbose_name='Категория')
     name = models.CharField(max_length=200, verbose_name='Название')
     slug = models.SlugField(max_length=200, primary_key=True, blank=True)
@@ -29,8 +33,8 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Цена')
     stock = models.PositiveIntegerField(verbose_name='Наличие')
     available = models.BooleanField(default=True, verbose_name='Товар включен')
-    created = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
-    updated = models.DateTimeField(auto_now=True, verbose_name='Дата изменения')
+    created = models.DateField(auto_now_add=True)
+    updated = models.DateField(auto_now=True)
     
     class Meta:
         verbose_name = 'Продукт'
@@ -52,7 +56,7 @@ class Article(models.Model):
     title = models.CharField(max_length=256, verbose_name='Название')
     slug = models.SlugField(max_length=256, primary_key=True, blank=True)
     text = models.TextField(verbose_name='Текст')
-    published_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата публикации')
+    published_at = models.DateField(auto_now_add=True, verbose_name='Дата публикации')
     image = models.ImageField(null=True, blank=True, verbose_name='Изображение' )
 
     class Meta:
@@ -69,12 +73,11 @@ class Article(models.Model):
         super().save()
 
 class Orders(models.Model):
-    date = models.DateTimeField(auto_now_add=True)
+    date = models.DateField(auto_now_add=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='orders', verbose_name='Товар')
-    quantities = ArrayField(models.PositiveIntegerField(), default=list)
-    total_price = models.IntegerField()
-    delivery_method = models.CharField(max_length=30, default='')
-    payment_method = models.CharField(max_length=30, default='')
+    quantities = ArrayField(models.PositiveIntegerField(), default=list, verbose_name='Количество')
+    delivery_method = models.CharField(max_length=30, default='Доставка на дом')
+    payment_method = models.CharField(max_length=30, default='Картой')
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='orders', on_delete=models.CASCADE)
 
     class Meta:
@@ -82,5 +85,5 @@ class Orders(models.Model):
         verbose_name_plural = 'Заказы'
 
     def __str__(self) -> str:
-        return self.product
+        return f'Заказ от пользователя {self.owner}'
 

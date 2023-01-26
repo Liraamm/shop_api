@@ -4,17 +4,17 @@ from .models import *
 class CategorySerializer(serializers. ModelSerializer):
     class Meta:
         model = Category
-        fields  = ('title',)
+        fields  = '__all__'
 
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = ('name',)
+        fields = '__all__'
 
 class ArticleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Article
-        fields = ('title',)
+        fields = '__all__'
 
 class OrdersSerializer(serializers.ModelSerializer):
     owner = serializers.ReadOnlyField(source='owner.username')
