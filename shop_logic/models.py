@@ -117,3 +117,15 @@ class Like(models.Model):
 
     def __str__(self) -> str:
         return f'{self.product}Liked by{self.author.name}'
+
+class Favorites(models.Model):
+    product = models.ForeignKey(Product,
+                             on_delete=models.CASCADE,
+                             related_name='favorites')
+    author = models.ForeignKey(User,
+                             on_delete=models.CASCADE,
+                             related_name='favorite')
+    is_favorite = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ['product', 'author']

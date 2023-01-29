@@ -64,7 +64,35 @@ class ProductViewSet(ModelViewSet):
             Like.objects.create(product=product, author=user, is_liked=True)
             message='liked'
         return Response(message, status=200)
+ 
+    #api/v1/posts/id/add_to_favorites/
+    @action(['POST'], detail=True)
+    def favorites(self, request, pk=None):
+        product = self.get_object()
+        user = request.user     
+        try:
+            favorite = Favorites.objects.get(product=product, author=user)
+            favorite.is_favorite = not favorite.is_favorite
+            favorite.save()
+            message = 'Добавлено в избранное' if favorite.is_favorite else 'Удалено из избранного'
+            if not favorite.is_favorite:
+                favorite.delete()
+        except Favorites.DoesNotExist:
+            Favorites.objects.create(product=product, author=user, is_favorite=True)
+            message = 'Добавлено в избранное'
+        return Response(message, status=200)
+        # if request.user.liked.filter(product=product).exists():
+        #     return Response('Продукт уже находится в избранных')
+        # Favorites.objects.create(product=product, author=user)
+        # return Response('Добавлено в избранное')
 
+    # @action(['POST'], detail=True)
+    # def remove_from_favorites(self, request, pk=None):
+    #     product = self.get_object()
+    #     if not request.user.liked.filter(product=product).exists():
+    #         return Response('Продукт не находится в списке избранных')
+    #     request.user.liked.filter(product=product).delete()
+    #     return Response('Продукт удалён из избранных')
 
 class ArticleViewSet(ModelViewSet):
     queryset = Article.objects.all()

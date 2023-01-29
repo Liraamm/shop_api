@@ -113,16 +113,25 @@ class ChangePasswordSerializer(serializers.Serializer):
 class ForgotPasswordSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
 
+    email = serializers.EmailField(required=True)
     def validate_email(self, email):
-        if not User.objects.filter(email=email).exists():
-            raise serializers.ValidationError('Такого пользователя нет!')
+        if not User.objects.filter(email=email).exists:
+            raise serializers.ValidationError(
+                'Такого пользователя не существует'
+            )
         return email
-
+    
     def send_verification_email(self):
         email = self.validated_data.get('email')
         user = User.objects.get(email=email)
         user.create_activation_code()
-        send_mail('Восстановление пароля', f'Ваш код восстановления: {user.activation_code} example@gmail.com', [user.email])
+        send_mail(
+            'Восстановление пароля',
+            f'Ваш код восстановления: {user.activation_code}',
+            'example@gmail.com',
+            [user.email]
+        )
+
 
 
 class ForgotPasswordCompleteSerializer(serializers.Serializer):
